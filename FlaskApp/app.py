@@ -1,7 +1,7 @@
 #flask app created with tutorial from https://www.geeksforgeeks.org/mysql-database-files/#
 
 from ast import Try
-from flask import Flask, render_template, json, request
+from flask import Flask, render_template, json, request, redirect, url_for
 from flask_mysqldb import MySQL
 import MySQLdb
 import re
@@ -113,7 +113,8 @@ def submitbook():
 
     #validate we have all the values
     if not (title and isbn and afname and alname and year and genre!=0):
-        return json.dumps({'html':'<span>Enter the required fields</span>'})
+        msg = "Please enter all required fields"
+        return render_template('addbook.html', msg=msg)
     else:
         #cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute(
@@ -135,8 +136,8 @@ def submitbook():
             else:
                 msg = "Book successfully added!"
                 mysql.connection.commit()
+            cursor.close()
             return render_template('addbook.html', msg=msg)
-    cursor.close()
 
 @app.route("/editbook", methods=['GET'])
 def editbook():
@@ -153,20 +154,26 @@ def submitbookedit():
     alname = request.form['alname']
     year = request.form['year']
     genre = request.form['genre']
+    id = request.args.get('book')
 
     conn = mysql.connection
     cursor = conn.cursor()
 
     #validate we have all the values
-    if not (title and isbn and afname and alname and year and genre):
-        return json.dumps({'html':'<span>Enter the required fields</span>'})
+    if not (title and afname and alname and year and genre!=0):
+        msg = "Please enter all required fields"
+        return render_template('editbook.html', msg=msg)
     else:
-        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.callproc('addBook', [isbn, title, afname, alname, year, genre])
-        msg = "Book successfully Updated!"
-        mysql.connection.commit()
+        try:
+            cursor.callproc('editBook', [id, title, afname, alname, year, genre])
+        except (MySQLdb.Error, MySQLdb.Warning) as e:
+            msg=""
+            print(e)
+        else:
+            msg = "Book successfully updated!"
+            mysql.connection.commit()
+        cursor.close()
         return render_template('booklist.html', msg=msg, list=listbooks())
-    cursor.close()
         
 
 #@app.route('/api/signUp',methods=['POST'])
