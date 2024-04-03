@@ -22,24 +22,24 @@ mysql = MySQL(app)
 #conn = mysql.connection
 #cursor = conn.cursor(MySQLdb.cursors.DictCursor)
 
-with open('initialize.sql', 'r') as f:
-    cursor = mysql.connection.cursor()
-    cursor.execute(f.read())
-    #mysql.connection.commit()
-    cursor.close()
+def init():
+    with open('initialize.sql', 'r') as f:
+        cursor = mysql.connection.cursor()
+        cursor.execute(f.read())
 
-with open('procedures.sql', 'r') as f:
-    cursor = mysql.connection.cursor()
-    procfile = f.read()
-    #procs = procfile.split('//|;')
-    procs = procfile.split('//')
-    for p in procs:
-        try:
-            cursor.execute(p)
-        except (MySQLdb.Error, MySQLdb.Warning) as e:
-            print(e)
-    #mysql.connection.commit()
-    cursor.close()
+    with open('procedures.sql', 'r') as f:
+        cursor = mysql.connection.cursor()
+        procfile = f.read()
+        #procs = procfile.split('//|;')
+        procs = procfile.split('//')
+        for p in procs:
+            try:
+                cursor.execute(p)
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                print(e)
+        mysql.connection.commit()
+        cursor.close()
+
 
 #HELPER FUNCTIONS
 def listbooks():
@@ -85,13 +85,26 @@ def main():
 
 @app.route("/booklist")
 def list():
-    msg = "Welcome to our book database :)"
-    genres = getgenres(0)
+    mode = request.args.get('mode')
+    if mode == 'del':
+        msg = "Book successfully deleted!"
+    elif mode == 'delf':
+        msg = "Failed to delete book, please try again or contact administrators"
+    elif mode == 'edit':
+        msg = "Book successfully updated!"
+    elif mode == 'editf':
+        msg = "Failed to edit book, please try again or contact administrators"
+    else:
+        msg = "Welcome to our book database :)"
     return render_template('booklist.html', msg=msg, list=listbooks())
 
 @app.route("/search")
 def search():
     return render_template('search.html')
+
+
+
+
 
 @app.route("/addbook", methods=['GET'])
 def addbook():
@@ -139,12 +152,20 @@ def submitbook():
             cursor.close()
             return render_template('addbook.html', msg=msg)
 
+
+
+
+
 @app.route("/editbook", methods=['GET'])
 def editbook():
+    msg=""
     book = request.args.get('book')
+    mode = request.args.get('mode')
+    if mode == 'add':
+        msg = "Please enter all required fields"
     data = getbook(book)
     genres = getgenres(data[6])
-    return render_template('editbook.html', data=data, genres=genres)
+    return render_template('editbook.html', data=data, genres=genres, msg=msg)
 
 @app.route("/editbook", methods=['POST'])
 def submitbookedit():
@@ -161,26 +182,49 @@ def submitbookedit():
 
     #validate we have all the values
     if not (title and afname and alname and year and genre!=0):
-        msg = "Please enter all required fields"
-        return render_template('editbook.html', msg=msg)
+        #return render_template('editbook.html', msg=msg)
+        return redirect(f'/editbook?mode=add&book={id}')
+
     else:
         try:
-            cursor.callproc('editBook', [id, title, afname, alname, year, genre])
+            cursor.callproc('editbook', [id, title, afname, alname, year, genre])
         except (MySQLdb.Error, MySQLdb.Warning) as e:
             msg=""
             print(e)
+            cursor.close()
+            mode = "editf"
         else:
-            msg = "Book successfully updated!"
+            mode="edit"
             mysql.connection.commit()
-        cursor.close()
-        return render_template('booklist.html', msg=msg, list=listbooks())
+    cursor.close()
+    return redirect(f'/booklist?mode={mode}')
+        #return redirect('/booklist?mode=edit')
+
         
 
-#@app.route('/api/signUp',methods=['POST'])
-#def signUp():
+
+@app.route("/delbook", methods=['GET'])
+def delbook():
+    # read the posted values from the UI
+    id = request.args.get('book')
+
+    conn = mysql.connection
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('delbook', [id])
+    except (MySQLdb.Error, MySQLdb.Warning) as e:
+        mode='delf'
+        print(e)
+    else:
+        mode='del'
+        mysql.connection.commit()
+    cursor.close()
+    #return render_template('booklist.html', msg=msg, list=listbooks())
+    return redirect(f'/booklist?mode={mode}')
 
 
 
 if __name__ == "__main__":
+    init()
     app.run()
 
