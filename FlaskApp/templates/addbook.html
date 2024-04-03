@@ -1,39 +1,55 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+</head>
 <body>
     <h1>Add a Book</h1>
-    <form>
-        <label for="title">Title:</label><br>
+    <p>{{ msg }}</p>
+    <a href="/booklist">back to booklist</a>
+    <form method="POST">
+        <label for="title">Title:</label>
         <input type="text" id="title" name="title"><br>
 
-        <label for="isbn">ISBN:</label><br>
-        <input type="number" id="isbn" name="isbn">
+        <label for="isbn">ISBN:</label>
+        <input type="text" id="isbn" name="isbn"><br>
 
-        <label for="afname">Author First Name:</label><br>
-        <input type="text" id="afname" name="afname">
+        <label for="afname">Author First Name:</label>
+        <input type="text" id="afname" name="afname"><br>
 
-        <label for="alname">Author Last Name:</label><br>
-        <input type="text" id="alname" name="alname">
+        <label for="alname">Author Last Name:</label>
+        <input type="text" id="alname" name="alname"><br>
 
-        <label for="year">Year Published:</label><br>
-        <input type="number" id="year" name="year">
+        <label for="year">Year Published:</label>
+        <input type="number" id="year" name="year"><br>
 
 
-        <label for="genre">Genre:</label><br>
+        <label for="genre">Genre:</label>
+        <select id="genre" name="genre">
+            <option value=0 hidden>Please Select</option>
+            {% for row in genres %}
+            <option value={{ row[0] }} {{ row[2] }}>{{ row[1] }}</option>
+            <!--<option value=1>Science Fiction</option>
+            <option value=2>Fantasy</option>
+            <option value=3>Romance</option>
+            <option value=4>Nonfiction</option>-->
+            {% endfor %}
+            <br />
+        </select>
 
-        <input type="radio" id="scifi" name="genre" value="scifi">
+        <!--<input type="radio" id="scifi" name="genre" value=1>
         <label for="child">Science Fiction</label><br>
 
-        <input type="radio" id="fantasy" name="genre" value="fanstasy">
+        <input type="radio" id="fantasy" name="genre" value=2>
         <label for="fantasy">Fantasy</label><br>
 
-        <input type="radio" id="romance" name="genre" value="romance">
-        <label for="romance">Romance</label>
+        <input type="radio" id="romance" name="genre" value=3>
+        <label for="romance">Romance</label><br>
 
-        <input type="radio" id="nonfiction" name="genre" value="nonfiction">
-        <label for="nonfiction">Nonfiction</label>
+        <input type="radio" id="nonfiction" name="genre" value=4>
+        <label for="nonfiction">Nonfiction</label><br>-->
 
-        <div><button type="submit">Submit</button></div>
+        <div><button type="submit">Submit</button></div><br>
 
     </form>
 </body>

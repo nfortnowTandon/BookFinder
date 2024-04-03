@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+</head>
+<body>
+    <h1>Edit {{ data[1] }}</h1>
+    <a href="/booklist">back to booklist</a>
+    <p>ISBN: {{ data[2] }}</p>
+    <form method="POST">
+        <label for="title">Title:</label><br>
+        <input type="text" id="title" name="title" value="{{ data[1] }}"><br>
+        <p>
+            note: changing the author's name here will assign this book to a new author.
+            If you want to change the author's name for all their books, please go back and click on the Author's name in the Book List.
+        </p>
+        <label for="afname">Author First Name:</label>
+        <input type="text" id="afname" name="afname" value={{ data[3] }}><br>
+
+        <label for="alname">Author Last Name:</label>
+        <input type="text" id="alname" name="alname" value={{ data[4] }}><br>
+
+        <label for="year">Year Published:</label>
+        <input type="number" id="year" name="year" value={{ data[5] }}><br>
+
+
+        <label for="genre">Genre:</label>
+        <select id="genre" name="genre">
+            <option value=0 hidden>Please Select</option>
+            {% for row in genres %}
+            <option value={{ row[0] }} {{ row[2] }}>{{ row[1] }}</option>
+            {% endfor %}
+            <br />
+        </select>
+
+        <div><button type="submit">Submit</button></div>
+
+    </form>
+
+</body>
+</html>
