@@ -31,15 +31,19 @@ begin
 end //
 
 -- list all books//
-drop procedure booklist;//
-create procedure booklist ()
+-- I changed this to a view, so I'm gonna change it to just call the view
+drop procedure booklistproc//
+create procedure booklistproc ()
 begin
-    select Books.id, Title, concat(Authors.FirstName,' ',Authors.LastName) as Author, YearPublished, Genres.Name as Genre, ISBN, Authors.id as authId
-    from Books
-    join Authors on Authorid=Authors.id
-    join Genres on GenreId=Genres.id
-    order by Authors.LastName,Title ASC;
-END //
+    select * from booklist;
+end //
+--begin
+--    select Books.id, Title, concat(Authors.FirstName,' ',Authors.LastName) as Author, YearPublished, Genres.Name as Genre, ISBN, Authors.id as authId
+--    from Books
+--    join Authors on Authorid=Authors.id
+--    join Genres on GenreId=Genres.id
+--    order by Authors.LastName,Title ASC;
+--END //
 
 -- find an existing book//
 drop procedure findbook;//
@@ -110,15 +114,29 @@ begin
     where Books.ISBN=isbnum;
 END //
 
+
+
+
+
+
+
+
+
+
+
+
+drop procedure search;//
+create procedure search ()
+begin
+    select * from booklist;
+end //
+
+
 --	call addbook (9781250313195, 'Gideon the Ninth', 'Tamsyn', 'Muir', 2019, 2)
 --	call addbook ('978-1-982185-82-4', "I'm Glad my Mom Died", 'Jenette', 'McCurdy', 2022, 4)//
 
 
---INSERT INTO Genres (id, Name) VALUES
---(1, 'Science Fiction'),
---(2, 'Fantasy'),
---(3, 'Romance'), 
---(4, 'Nonfiction')//
 
 
 --DELIMITER ;
+

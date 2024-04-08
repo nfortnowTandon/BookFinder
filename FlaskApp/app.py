@@ -25,7 +25,14 @@ mysql = MySQL(app)
 def init():
     with open('initialize.sql', 'r') as f:
         cursor = mysql.connection.cursor()
-        cursor.execute(f.read())
+        procfile = f.read()
+        #procs = procfile.split('//|;')
+        queries = procfile.split(';')
+        for q in queries:
+            try:
+                cursor.execute(q)
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                print(e)
 
     with open('procedures.sql', 'r') as f:
         cursor = mysql.connection.cursor()
@@ -37,6 +44,17 @@ def init():
                 cursor.execute(p)
             except (MySQLdb.Error, MySQLdb.Warning) as e:
                 print(e)
+
+    with open('procedures.sql', 'r') as f:
+        cursor = mysql.connection.cursor()
+        viewfile = f.read()
+        #procs = procfile.split('//|;')
+        views = viewfile.split('//')
+        for v in views:
+            try:
+                cursor.execute(v)
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                print(e)
         mysql.connection.commit()
         cursor.close()
 
@@ -45,7 +63,7 @@ def init():
 def listbooks():
     #cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     cursor = mysql.connection.cursor()
-    cursor.callproc('booklist', [])
+    cursor.callproc('booklistproc', [])
     list=cursor.fetchall()
     #mysql.connection.commit()
     cursor.close()
@@ -121,8 +139,7 @@ def submitbook():
     year = request.form['year']
     genre = request.form['genre']
 
-    conn = mysql.connection
-    cursor = conn.cursor()
+    
 
     #validate we have all the values
     if not (title and isbn and afname and alname and year and genre!=0):
@@ -130,9 +147,12 @@ def submitbook():
         return render_template('addbook.html', msg=msg)
     else:
         #cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-        cursor.execute(
-            'SELECT * FROM Books WHERE ISBN = % s', [isbn])
+        #cursor.execute('SELECT * FROM Books WHERE ISBN = % s', [isbn])
+        conn = mysql.connection
+        cursor = conn.cursor()
+        cursor.callproc('findisbn', [isbn])
         book = cursor.fetchone()
+        cursor.close()
         if book:
             msg = "Book already in database"
             return render_template('addbook.html', msg=msg)
@@ -141,6 +161,8 @@ def submitbook():
             #return json.dumps({'html':'<span>Book Already in Database</span>'})
         else:
             #cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            conn = mysql.connection
+            cursor = conn.cursor()
             try:
                 cursor.callproc('addbook', [isbn, title, afname, alname, year, genre])
             except (MySQLdb.Error, MySQLdb.Warning) as e:
@@ -200,8 +222,6 @@ def submitbookedit():
     return redirect(f'/booklist?mode={mode}')
         #return redirect('/booklist?mode=edit')
 
-        
-
 
 @app.route("/delbook", methods=['GET'])
 def delbook():
@@ -221,6 +241,16 @@ def delbook():
     cursor.close()
     #return render_template('booklist.html', msg=msg, list=listbooks())
     return redirect(f'/booklist?mode={mode}')
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -8,21 +8,21 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema BookFinder
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema BookFinder
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8 ;
-USE `mydb` ;
+CREATE SCHEMA IF NOT EXISTS `BookFinder` DEFAULT CHARACTER SET utf8 ;
+USE `BookFinder` ;
 
 -- -----------------------------------------------------
--- Table `mydb`.`Authors`
+-- Table `BookFinder`.`Authors`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Authors` ;
+DROP TABLE IF EXISTS `BookFinder`.`Authors` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Authors` (
+CREATE TABLE IF NOT EXISTS `BookFinder`.`Authors` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `FirstName` VARCHAR(255) NOT NULL,
   `LastName` VARCHAR(255) NOT NULL,
@@ -31,11 +31,11 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Genres`
+-- Table `BookFinder`.`Genres`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Genres` ;
+DROP TABLE IF EXISTS `BookFinder`.`Genres` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Genres` (
+CREATE TABLE IF NOT EXISTS `BookFinder`.`Genres` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`id`))
@@ -43,11 +43,11 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Books`
+-- Table `BookFinder`.`Books`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Books` ;
+DROP TABLE IF EXISTS `BookFinder`.`Books` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Books` (
+CREATE TABLE IF NOT EXISTS `BookFinder`.`Books` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `ISBN` VARCHAR(255) NOT NULL,
   `Title` VARCHAR(255) NOT NULL,
@@ -59,23 +59,23 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Books` (
   INDEX `GenreId_idx` (`GenreId` ASC) VISIBLE,
   CONSTRAINT `AuthorId`
     FOREIGN KEY (`AuthorId`)
-    REFERENCES `mydb`.`Authors` (`id`)
+    REFERENCES `BookFinder`.`Authors` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `GenreId`
     FOREIGN KEY (`GenreId`)
-    REFERENCES `mydb`.`Genres` (`id`)
+    REFERENCES `BookFinder`.`Genres` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Addresses`
+-- Table `BookFinder`.`Addresses`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Addresses` ;
+DROP TABLE IF EXISTS `BookFinder`.`Addresses` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Addresses` (
+CREATE TABLE IF NOT EXISTS `BookFinder`.`Addresses` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `StreetAddr` VARCHAR(255) NOT NULL,
   `City` VARCHAR(255) NOT NULL,
@@ -87,11 +87,11 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Bookstores`
+-- Table `BookFinder`.`Bookstores`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Bookstores` ;
+DROP TABLE IF EXISTS `BookFinder`.`Bookstores` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Bookstores` (
+CREATE TABLE IF NOT EXISTS `BookFinder`.`Bookstores` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `Name` VARCHAR(255) NOT NULL,
   `AddressId` INT NOT NULL,
@@ -99,18 +99,18 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Bookstores` (
   INDEX `AddressId_idx` (`AddressId` ASC) VISIBLE,
   CONSTRAINT `StoreAddress`
     FOREIGN KEY (`AddressId`)
-    REFERENCES `mydb`.`Addresses` (`id`)
+    REFERENCES `BookFinder`.`Addresses` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Libraries`
+-- Table `BookFinder`.`Libraries`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Libraries` ;
+DROP TABLE IF EXISTS `BookFinder`.`Libraries` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Libraries` (
+CREATE TABLE IF NOT EXISTS `BookFinder`.`Libraries` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `BranchName` VARCHAR(255) NOT NULL,
   `AddressId` INT NOT NULL,
@@ -118,18 +118,18 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Libraries` (
   INDEX `AddressId_idx` (`AddressId` ASC) VISIBLE,
   CONSTRAINT `LibAddress`
     FOREIGN KEY (`AddressId`)
-    REFERENCES `mydb`.`Addresses` (`id`)
+    REFERENCES `BookFinder`.`Addresses` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`StoreCopies`
+-- Table `BookFinder`.`StoreCopies`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`StoreCopies` ;
+DROP TABLE IF EXISTS `BookFinder`.`StoreCopies` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`StoreCopies` (
+CREATE TABLE IF NOT EXISTS `BookFinder`.`StoreCopies` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `BookId` INT NOT NULL,
   `BookstoreId` INT NOT NULL,
@@ -139,23 +139,23 @@ CREATE TABLE IF NOT EXISTS `mydb`.`StoreCopies` (
   INDEX `BookstoreId_idx` (`BookstoreId` ASC) VISIBLE,
   CONSTRAINT `StoreBookId`
     FOREIGN KEY (`BookId`)
-    REFERENCES `mydb`.`Books` (`id`)
+    REFERENCES `BookFinder`.`Books` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `BookstoreId`
     FOREIGN KEY (`BookstoreId`)
-    REFERENCES `mydb`.`Bookstores` (`id`)
+    REFERENCES `BookFinder`.`Bookstores` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`Reviews`
+-- Table `BookFinder`.`Reviews`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`Reviews` ;
+DROP TABLE IF EXISTS `BookFinder`.`Reviews` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`Reviews` (
+CREATE TABLE IF NOT EXISTS `BookFinder`.`Reviews` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `BookId` INT NOT NULL,
   `ReviewerName` VARCHAR(255) NOT NULL,
@@ -166,18 +166,18 @@ CREATE TABLE IF NOT EXISTS `mydb`.`Reviews` (
   INDEX `BookId_idx` (`BookId` ASC) VISIBLE,
   CONSTRAINT `BookAbout`
     FOREIGN KEY (`BookId`)
-    REFERENCES `mydb`.`Books` (`id`)
+    REFERENCES `BookFinder`.`Books` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`LibraryCopies`
+-- Table `BookFinder`.`LibraryCopies`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `mydb`.`LibraryCopies` ;
+DROP TABLE IF EXISTS `BookFinder`.`LibraryCopies` ;
 
-CREATE TABLE IF NOT EXISTS `mydb`.`LibraryCopies` (
+CREATE TABLE IF NOT EXISTS `BookFinder`.`LibraryCopies` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `BookId` INT NOT NULL,
   `LibraryId` INT NOT NULL,
@@ -187,12 +187,12 @@ CREATE TABLE IF NOT EXISTS `mydb`.`LibraryCopies` (
   INDEX `LibraryId_idx` (`LibraryId` ASC) VISIBLE,
   CONSTRAINT `LibBookId`
     FOREIGN KEY (`BookId`)
-    REFERENCES `mydb`.`Books` (`id`)
+    REFERENCES `BookFinder`.`Books` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `LibraryId`
     FOREIGN KEY (`LibraryId`)
-    REFERENCES `mydb`.`Libraries` (`id`)
+    REFERENCES `BookFinder`.`Libraries` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -201,3 +201,9 @@ ENGINE = InnoDB;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+INSERT INTO Genres (id, Name) VALUES
+(1, 'Science Fiction'),
+(2, 'Fantasy'),
+(3, 'Romance'), 
+(4, 'Nonfiction');
