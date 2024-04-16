@@ -1,8 +1,11 @@
+<!-- stars from https://codepen.io/jrsdiniz/pen/OJVdXjx -->
+<!-- stars from https://dev.to/madsstoumann/star-rating-using-a-single-input-i0l -->
 <!DOCTYPE html>
 <html>
 <head>
     <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!--<link rel="stylesheet" href="/stars.css">-->
     <style>
         .rating {
             --dir: right;
@@ -61,51 +64,95 @@
         .rating-label {
             margin-block-end: 1rem;
         }
+
     </style>
+
 </head>
+
+
 <body>
-    <h1>BookList</h1>
-    <p>{{ msg }}</p>
-    <a href="/addbook">add a book</a>
+    <h1>Reviews for {{ data[1] }}</h1>
+    <p>ISBN: {{ data[2] }}</p>
+    <a href="/booklist">back to booklist</a>
+
     <table>
         <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Year Published</th>
-            <th>Genre</th>
-            <th>ISBN</th>
+            <th>Date</th>
+            <th>Reviewer</th>
+            <th>Rating</th>
+            <th>Review</th>
         </tr>
-        {% for row in list %}
+        {% for row in reviews %}
         <tr>
-            <td>{{ row[0] }}</td>
             <td>{{ row[1] }}</td>
+            <td>{{ row[2] }}</td>
+
             <td>
-                <a href="/editauth?author={{ row[6] }}">{{ row[2] }}</a>
-            </td>
-            <td>{{ row[3] }}</td>
-            <td>{{ row[4] }}</td>
-            <td>{{ row[5] }}</td>
-            <td>
+                {{ row[3] }} stars
                 <label class="rating-label">
                     <input class="rating"
                            max="5"
                            readonly
-                           step=".1"
-                           style="--stars: 5; --value: {{ row[7] }}"
+                           step="1"
+                           style="--stars: 5; --value: {{ row[3] }}"
                            type="range"
-                           value={{ row[7] }}>
+                           value="{{ row[3] }}">
                 </label>
-                <a href="/review?book={{ row[0] }}">see/add reviews</a>
+            </td>
+
+            <td>{{ row[4] }}</td>
+
+            <td>
+                <a href="/editreview?review={{ row[0] }}">edit</a>
             </td>
             <td>
-                <a href="/editbook?book={{ row[0] }}">edit</a>
-            </td>
-            <td>
-                <a href="/delbook?book={{ row[0] }}">delete</a>
+                <a href="/delreview?review={{ row[0] }}">delete</a>
             </td>
         </tr>
         {% endfor %}
     </table>
+
+
+    <h2>Add a review:</h2>
+    <form method="POST">
+
+        <label for="name">Your name:</label>
+        <input type="text" id="name" name="name"><br>
+
+        <label class="rating-label">
+          <input
+            id="rating"
+            name="rating"
+            class="rating"
+            oninput="this.style.setProperty('--value', `${this.valueAsNumber}`)"
+            max="5"
+            step="1"
+            style="--stars:5;--value:0"
+            type="range">
+        </label>
+
+        <!--<div class="rating" id="rating">
+            <input type="radio" id="star5" name="rating" value=5 />
+            <label class="star" for="star5" title="Awesome" aria-hidden="true"></label>
+            <input type="radio" id="star4" name="rating" value=4 />
+            <label class="star" for="star4" title="Great" aria-hidden="true"></label>
+            <input type="radio" id="star3" name="rating" value=3 />
+            <label class="star" for="star3" title="Very good" aria-hidden="true"></label>
+            <input type="radio" id="star2" name="rating" value=2 />
+            <label class="star" for="star2" title="Good" aria-hidden="true"></label>
+            <input type="radio" id="star1" name="rating" value=1 />
+            <label class="star" for="star1" title="Bad" aria-hidden="true"></label>
+        </div> <br>-->
+
+
+        <br />
+        <label for="review">Review:</label><br>
+        <textarea id="review" name="review" placeholder='write a review!' maxlength='1000'> </textarea>
+        <br>
+
+        <div><button type="submit">Submit</button></div>
+
+    </form>
+
 </body>
 </html>

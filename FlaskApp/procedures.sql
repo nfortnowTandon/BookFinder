@@ -115,13 +115,56 @@ begin
 END //
 
 
+drop procedure getreviews;//
+create procedure getreviews (in book int)
+begin
+    select id, Date, ReviewerName, Stars, Review
+    from Reviews
+    where BookId = book
+    order by Date desc;
+end //
+
+drop procedure submitreview;//
+create procedure submitreview (in bid int, aname VARCHAR(255), rating INT, reviewtxt VARCHAR(1000))
+begin
+	
+    declare timenow DATETIME;
+    set timenow = NOW();
+    
+    if exists(select 1 from Books where id = bid) then
+        INSERT INTO Reviews (BookId, ReviewerName, Stars, Review, Date)
+        VALUES (bid, aname, rating, reviewtxt, timenow);
+    end if;
+
+END //
 
 
+drop procedure getreview;//
+create procedure getreview (in revid int)
+begin
+    select id, BookId, Date, ReviewerName, Stars, Review
+    from Reviews
+    where id=revid
+    order by Date desc;
+end //
+
+drop procedure delreview;//
+create procedure delreview (in revid int)
+begin
+    delete from Reviews
+    where id=revid;
+end //
 
 
+drop procedure editreview;//
+create procedure editreview (in rid int, rname VARCHAR(255), rating INT, rtext VARCHAR(255))
+begin
+	
+    UPDATE Reviews
+    SET ReviewerName = rname, Stars = rating, Review=rtext
+    WHERE id=rid;
 
-
-
+END //
 
 
 

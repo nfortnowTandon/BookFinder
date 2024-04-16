@@ -23,16 +23,16 @@ mysql = MySQL(app)
 #cursor = conn.cursor(MySQLdb.cursors.DictCursor)
 
 def init():
-    with open('initialize.sql', 'r') as f:
-        cursor = mysql.connection.cursor()
-        procfile = f.read()
-        #procs = procfile.split('//|;')
-        queries = procfile.split(';')
-        for q in queries:
-            try:
-                cursor.execute(q)
-            except (MySQLdb.Error, MySQLdb.Warning) as e:
-                print(e)
+    #with open('initialize.sql', 'r') as f:
+    #    cursor = mysql.connection.cursor()
+    #    procfile = f.read()
+    #    #procs = procfile.split('//|;')
+    #    queries = procfile.split(';')
+    #    for q in queries:
+    #        try:
+    #            cursor.execute(q)
+    #        except (MySQLdb.Error, MySQLdb.Warning) as e:
+    #            print(e)
 
     with open('procedures.sql', 'r') as f:
         cursor = mysql.connection.cursor()
@@ -45,11 +45,11 @@ def init():
             except (MySQLdb.Error, MySQLdb.Warning) as e:
                 print(e)
 
-    with open('procedures.sql', 'r') as f:
+    with open('views.sql', 'r') as f:
         cursor = mysql.connection.cursor()
         viewfile = f.read()
         #procs = procfile.split('//|;')
-        views = viewfile.split('//')
+        views = viewfile.split(';')
         for v in views:
             try:
                 cursor.execute(v)
@@ -85,6 +85,24 @@ def getgenres(selid):
     cursor = conn.cursor()
     cursor.callproc('getgenres', [selid])
     data = cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return data;
+
+def getreviews(book):
+    #cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getreviews', [book])
+    data=cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return data;
+
+def getreview(revid):
+    #cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getreview', [revid])
+    data=cursor.fetchone()
     #mysql.connection.commit()
     cursor.close()
     return data;
@@ -244,12 +262,122 @@ def delbook():
 
 
 
+# review page
+@app.route("/review", methods=['GET'])
+def reviewpage():
+    #msg=""
+    book = request.args.get('book')
+    #mode = request.args.get('mode')
+    #if mode == 'add':
+    #    msg = "Please enter all required fields"
+    data = getbook(book)
+    reviews = getreviews(book)
+    return render_template('review.html', data=data, reviews=reviews)
+
+@app.route("/review", methods=['POST'])
+def submitreview():
+    print("made it here!")
+    # read the posted values from the UI
+    book = request.args.get('book')
+    name = request.form['name']
+    stars = request.form['rating']
+    review = request.form['review']
+    print(f'{book} {name}: {stars} stars, "{review}"')
+    #date = request.form['afname']
+
+    conn = mysql.connection
+    cursor = conn.cursor()
+
+    #validate we have all the values
+    if not (name and book and stars!=0):
+        #return render_template('editbook.html', msg=msg)
+        return redirect(f'/review?book={book}')
+
+    else:
+        try:
+            cursor.callproc('submitreview', [book, name, stars, review])
+        except (MySQLdb.Error, MySQLdb.Warning) as e:
+            msg=""
+            print(e)
+            cursor.close()
+            #mode = "editf"
+        else:
+            #mode="edit"
+            mysql.connection.commit()
+    cursor.close()
+    return redirect(f'/review?book={book}')
+        #return redirect('/booklist?mode=edit')
 
 
 
 
+# edit review page
+@app.route("/editreview", methods=['GET', 'POST'])
+def editreview():
+    msg=""
+    id = request.args.get('review')
+
+    data = getreview(id)
+    book = getbook(data[1])
+    bid = book[0]
+
+    if (request.method == 'GET'):
+        return render_template('editreview.html', data=data, book=book)
+
+    else:
+        print("made it here!")
+        # read the posted values from the UI
+        name = request.form['name']
+        stars = request.form['rating']
+        review = request.form['review']
+        print(f'{bid}, {name}, {stars} stars, "{review}"')
+        #date = request.form['afname']
+
+        conn = mysql.connection
+        cursor = conn.cursor()
+ 
+        #validate we have all the values
+        if not (name and book and stars!=0):
+            #return render_template('editbook.html', msg=msg)
+            return render_template('editreview.html', data=reviewdata, book=book, msg="please enter all required fields")
+
+        else:
+            try:
+                cursor.callproc('editreview', [id, name, stars, review])
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                msg="error: try again"
+                print(e)
+                cursor.close()
+                return render_template('editreview.html', data=reviewdata, book=book, msg=msg)
+                #mode = "editf"
+            else:
+                #mode="edit"
+                mysql.connection.commit()
+        cursor.close()
+        return redirect(f'/review?book={bid}')
+            #return redirect('/booklist?mode=edit')
 
 
+@app.route("/delreview", methods=['GET'])
+def delreview():
+    # read the posted values from the UI
+    id = request.args.get('review')
+    data = getreview(id)
+    book = getbook(data[1])
+    bid = book[0]
+
+
+    conn = mysql.connection
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('delreview', [id])
+    except (MySQLdb.Error, MySQLdb.Warning) as e:
+        print(e)
+    else:
+        mysql.connection.commit()
+    cursor.close()
+    #return render_template('booklist.html', msg=msg, list=listbooks())
+    return redirect(f'/review?book={bid}')
 
 
 
