@@ -64,25 +64,21 @@
     </style>
 </head>
 <body>
-    <h1>BookList</h1>
-    <p>{{ msg }}</p>
+    <h1>{{ author[1] }} {{ author[2] }}</h1>
+    <a href="/booklist">back to booklist</a>
     <a href="/addbook">add a book</a>
     <table>
         <tr>
             <th>ID</th>
             <th>Title</th>
-            <th>Author</th>
             <th>Year Published</th>
             <th>Genre</th>
             <th>ISBN</th>
         </tr>
-        {% for row in list %}
+        {% for row in booklist %}
         <tr>
             <td>{{ row[0] }}</td>
             <td>{{ row[1] }}</td>
-            <td>
-                <a href="/author?id={{ row[6] }}">{{ row[2] }}</a>
-            </td>
             <td>{{ row[3] }}</td>
             <td>{{ row[4] }}</td>
             <td>{{ row[5] }}</td>
@@ -107,5 +103,16 @@
         </tr>
         {% endfor %}
     </table>
+
+    <h2> Edit Author details:</h2>
+    <form method="POST">
+        <p>note: to delete this author, delete all books by them</p>
+        <label for="afname">Author First Name:</label>
+        <input type="text" id="fname" name="fname" value={{ author[1] }}><br>
+
+        <label for="alname">Author Last Name:</label>
+        <input type="text" id="lname" name="lname" value={{ author[2] }}><br>
+        <div><button type="submit">Submit</button></div>
+    </form>
 </body>
 </html>

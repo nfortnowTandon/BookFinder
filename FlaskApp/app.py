@@ -107,6 +107,24 @@ def getreview(revid):
     cursor.close()
     return data;
 
+def getauthor(id):
+    #cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getauthor', [id])
+    data = cursor.fetchone()
+    print(data)
+    #mysql.connection.commit()
+    cursor.close()
+    return data;
+
+def authbooklist(id):
+    #cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor = mysql.connection.cursor()
+    cursor.callproc('authorbooks', [id])
+    list=cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return list;
 
 #END HELPER FUNCTIONS
 
@@ -379,6 +397,48 @@ def delreview():
     #return render_template('booklist.html', msg=msg, list=listbooks())
     return redirect(f'/review?book={bid}')
 
+
+
+
+# author page
+@app.route("/author", methods=['GET', 'POST'])
+def authorpage():
+    #msg=""
+    id = request.args.get('id')
+    author = getauthor(id)
+    booklist = authbooklist(id)
+
+    if (request.method == 'GET'):
+        if author:
+            return render_template('author.html', author=author, booklist=booklist)
+        else:
+            return render_template('error.html', msg="Author not found.")
+
+    else:
+        # read the posted values from the UI
+        fname = request.form['fname']
+        lname = request.form['lname']
+
+        conn = mysql.connection
+        cursor = conn.cursor()
+ 
+        #validate we have all the values
+        if not (fname and lname):
+            #return render_template('editbook.html', msg=msg)
+            return redirect(f'/author?id={id}')
+
+        else:
+            try:
+                cursor.callproc('editauthor', [id, fname, lname])
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                #msg="error: try again"
+                print(e)
+            else:
+                #mode="edit"
+                mysql.connection.commit()
+        cursor.close()
+        return redirect(f'/author?id={id}')
+            #return redirect('/booklist?mode=edit')
 
 
 

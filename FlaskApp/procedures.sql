@@ -95,6 +95,9 @@ begin
     from Books
     where id=bid;
 
+    delete from Reviews
+    where BookId=bid;
+
 	delete from Books
     WHERE id=bid;
 
@@ -165,6 +168,38 @@ begin
     WHERE id=rid;
 
 END //
+
+
+
+
+drop procedure getauthor;//
+create procedure getauthor (in aid int)
+begin
+    select * from Authors
+    where id=aid;
+end //
+
+
+drop procedure authorbooks;//
+create procedure authorbooks (in aid int)
+begin
+    select * from booklist
+    where authid=aid
+    order by Title asc;
+end //
+
+drop procedure editauthor;//
+create procedure editauthor (in aid int, fname VARCHAR(255), lname VARCHAR(255))
+begin
+	
+    UPDATE Authors
+    SET FirstName = fname, LastName = lname
+    WHERE id=aid;
+
+END //
+
+
+
 
 
 
