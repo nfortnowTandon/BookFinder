@@ -441,6 +441,59 @@ def authorpage():
             #return redirect('/booklist?mode=edit')
 
 
+# addlib
+@app.route("/addlib", methods=['GET', 'POST'])
+def addlib():
+    msg=""
+    id=0
+
+    if (request.method == 'GET'):
+        return render_template('addlib.html', msg=msg)
+
+    else:
+        # read the posted values from the UI
+        bname = request.form['branchname']
+        street = request.form['street']
+        city = request.form['city']
+        state = request.form['state']
+        zip = request.form['zip']
+
+        conn = mysql.connection
+        cursor = conn.cursor()
+ 
+        #validate we have all the values
+        if not (bname and street and city and state and zip):
+            msg= "please include all required fields"
+            return render_template('addlib.html', msg=msg)
+
+
+        else:
+            try:
+                cursor.callproc('addlib', [bname, street, city, state, zip])
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                msg="error: try again"
+                print(e)
+                cursor.close()
+                return render_template('addlib.html', msg=msg)
+
+            else:
+                #mode="edit"
+                mysql.connection.commit()
+                #print(conn.insert_id(), cursor.lastrowid)
+                cursor.close()
+
+                cursor = conn.cursor()
+                cursor.execute('select LAST_INSERT_ID()')
+                id = cursor.fetchone()[0]
+                cursor.close()
+                return redirect(f'/library?id={id}')
+            #return redirect('/booklist?mode=edit')
+
+@app.route("/library", methods=['GET', 'POST'])
+def libpage():
+    return render_template('library.html')
+
+
 
 if __name__ == "__main__":
     init()

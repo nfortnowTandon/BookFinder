@@ -81,7 +81,6 @@ CREATE TABLE IF NOT EXISTS `BookFinder`.`Addresses` (
   `City` VARCHAR(255) NOT NULL,
   `State` VARCHAR(255) NOT NULL,
   `ZipCode` INT NOT NULL,
-  `Country` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 

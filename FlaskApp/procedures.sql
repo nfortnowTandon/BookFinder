@@ -199,6 +199,32 @@ begin
 END //
 
 
+drop procedure addlib;//
+create procedure addlib (in bname VARCHAR(255), street VARCHAR(255), icity VARCHAR(255), istate VARCHAR(255), zip VARCHAR(255))
+begin
+	
+    declare aid int;
+    set aid = 0;
+
+    select id into aid
+    from Addresses 
+    where StreetAddr=street and City=icity and State=istate and ZipCode=zip;
+
+    if aid=0 then
+        insert into Addresses (StreetAddr, City, State, ZipCode)
+        values (street, icity, istate, zip);
+
+        SELECT LAST_INSERT_ID() into aid;
+    end if;
+    
+
+    INSERT INTO Libraries (BranchName, AddressId)
+    values (bname, aid);
+
+END //
+
+
+
 
 
 
