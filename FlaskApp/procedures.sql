@@ -223,9 +223,51 @@ begin
 
 END //
 
+drop procedure getlib;//
+create procedure getlib (in lid int)
+begin
+    select * from libraryaddrs
+    where id=lid;
+end //
 
+--drop procedure libbooklist;//
+--create procedure libbooklist (in lid int)
+--begin
+--    select * from booklist
+--    where authid=aid
+--    order by Title asc;
+--end //
 
+drop procedure addstore;//
+create procedure addstore (in sname VARCHAR(255), street VARCHAR(255), icity VARCHAR(255), istate VARCHAR(255), zip VARCHAR(255))
+begin
+	
+    declare aid int;
+    set aid = 0;
 
+    select id into aid
+    from Addresses 
+    where StreetAddr=street and City=icity and State=istate and ZipCode=zip;
+
+    if aid=0 then
+        insert into Addresses (StreetAddr, City, State, ZipCode)
+        values (street, icity, istate, zip);
+
+        SELECT LAST_INSERT_ID() into aid;
+    end if;
+    
+
+    INSERT INTO Bookstores (Name, AddressId)
+    values (sname, aid);
+
+END //
+
+drop procedure getstore;//
+create procedure getstore (in sid int)
+begin
+    select * from storeaddrs
+    where id=sid;
+end //
 
 
 

@@ -126,6 +126,24 @@ def authbooklist(id):
     cursor.close()
     return list;
 
+def getlib(id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getlib', [id])
+    data = cursor.fetchone()
+    print(data)
+    #mysql.connection.commit()
+    cursor.close()
+    return data;
+
+def getstore(id):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getstore', [id])
+    data = cursor.fetchone()
+    print(data)
+    #mysql.connection.commit()
+    cursor.close()
+    return data;
+
 #END HELPER FUNCTIONS
 
 
@@ -491,7 +509,105 @@ def addlib():
 
 @app.route("/library", methods=['GET', 'POST'])
 def libpage():
-    return render_template('library.html')
+    #msg=""
+    id = request.args.get('id')
+    library = getlib(id)
+    #booklist = libbooklist(id)
+
+    if (request.method == 'GET'):
+        if library:
+            return render_template('library.html', library=library)
+        else:
+            return render_template('error.html', msg="Library not found.")
+
+    #else:
+    #    # read the posted values from the UI
+    #    fname = request.form['fname']
+    #    lname = request.form['lname']
+
+    #    conn = mysql.connection
+    #    cursor = conn.cursor()
+ 
+    #    #validate we have all the values
+    #    if not (fname and lname):
+    #        #return render_template('editbook.html', msg=msg)
+    #        return redirect(f'/author?id={id}')
+
+    #    else:
+    #        try:
+    #            cursor.callproc('editauthor', [id, fname, lname])
+    #        except (MySQLdb.Error, MySQLdb.Warning) as e:
+    #            #msg="error: try again"
+    #            print(e)
+    #        else:
+    #            #mode="edit"
+    #            mysql.connection.commit()
+    #    cursor.close()
+    #    return redirect(f'/author?id={id}')
+    #        #return redirect('/booklist?mode=edit')
+    #return render_template('library.html')
+
+
+@app.route("/addstore", methods=['GET', 'POST'])
+def addstore():
+    msg=""
+    id=0
+
+    if (request.method == 'GET'):
+        return render_template('addstore.html', msg=msg)
+
+    else:
+        # read the posted values from the UI
+        sname = request.form['name']
+        street = request.form['street']
+        city = request.form['city']
+        state = request.form['state']
+        zip = request.form['zip']
+
+        conn = mysql.connection
+        cursor = conn.cursor()
+ 
+        #validate we have all the values
+        if not (sname and street and city and state and zip):
+            msg= "please include all required fields"
+            return render_template('addstore.html', msg=msg)
+
+
+        else:
+            try:
+                cursor.callproc('addstore', [sname, street, city, state, zip])
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                msg="error: try again"
+                print(e)
+                cursor.close()
+                return render_template('addstore.html', msg=msg)
+
+            else:
+                mysql.connection.commit()
+                cursor.close()
+
+                cursor = conn.cursor()
+                cursor.execute('select LAST_INSERT_ID()')
+                id = cursor.fetchone()[0]
+                cursor.close()
+                return redirect(f'/bookstore?id={id}')
+
+@app.route("/bookstore", methods=['GET', 'POST'])
+def storepage():
+    #msg=""
+    id = request.args.get('id')
+    store = getstore(id)
+    #booklist = libbooklist(id)
+
+    if (request.method == 'GET'):
+        if store:
+            return render_template('bookstore.html', store=store)
+        else:
+            return render_template('error.html', msg="Library not found.")
+
+
+
+
 
 
 

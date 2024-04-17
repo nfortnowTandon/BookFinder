@@ -13,3 +13,17 @@ select Books.id, Title, concat(Authors.FirstName,' ',Authors.LastName) as Author
     join Genres on GenreId=Genres.id
     left outer join avgstars on Books.id=avgstars.BookId
     order by Authors.LastName,Title ASC;
+
+drop view libraryaddrs;
+create view libraryaddrs as
+select Libraries.id as id, BranchName, StreetAddr, City, State, ZipCode
+    from Libraries
+    join Addresses on Libraries.AddressId=Addresses.id
+    order by BranchName ASC;
+
+drop view storeaddrs;
+create view storeaddrs as
+select Bookstores.id as id, Name, StreetAddr, City, State, ZipCode
+    from Bookstores
+    join Addresses on Bookstores.AddressId=Addresses.id
+    order by Name ASC;
