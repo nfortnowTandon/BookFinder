@@ -230,6 +230,12 @@ begin
     where id=lid;
 end //
 
+drop procedure liblist;//
+create procedure liblist ()
+begin
+    select * from libraryaddrs;
+end //
+
 --drop procedure libbooklist;//
 --create procedure libbooklist (in lid int)
 --begin
@@ -267,6 +273,12 @@ create procedure getstore (in sid int)
 begin
     select * from storeaddrs
     where id=sid;
+end //
+
+drop procedure storelist;//
+create procedure storelist ()
+begin
+    select * from storeaddrs;
 end //
 
 

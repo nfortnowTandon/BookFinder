@@ -144,6 +144,22 @@ def getstore(id):
     cursor.close()
     return data;
 
+def getlibs():
+    cursor = mysql.connection.cursor()
+    cursor.callproc('liblist', [])
+    list=cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return list;
+
+def getstores():
+    cursor = mysql.connection.cursor()
+    cursor.callproc('storelist', [])
+    list=cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return list;
+
 #END HELPER FUNCTIONS
 
 
@@ -459,6 +475,22 @@ def authorpage():
             #return redirect('/booklist?mode=edit')
 
 
+
+
+@app.route("/locations", methods=['GET', 'POST'])
+def locations():
+    libraries = getlibs()
+    stores =  getstores()
+    return render_template('locations.html', libraries=libraries, stores=stores)
+
+
+
+
+
+
+
+
+
 # addlib
 @app.route("/addlib", methods=['GET', 'POST'])
 def addlib():
@@ -519,6 +551,8 @@ def libpage():
             return render_template('library.html', library=library)
         else:
             return render_template('error.html', msg="Library not found.")
+
+    else if request.form.get('action') == "addcp":
 
     #else:
     #    # read the posted values from the UI
