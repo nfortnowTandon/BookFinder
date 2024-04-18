@@ -181,6 +181,14 @@ def libbooklist(lid):
     cursor.close()
     return list;
 
+def storebooklist(sid):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('storebooklist', [sid])
+    list=cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return list;
+
 def getcopy(id, locationtype):
     if locationtype=="l":
         cursor = mysql.connection.cursor()
@@ -690,6 +698,8 @@ def toggle():
     return redirect(f'/library?id={lid}')
 
 
+
+
 @app.route("/addstore", methods=['GET', 'POST'])
 def addstore():
     msg=""
@@ -736,18 +746,91 @@ def addstore():
 
 @app.route("/bookstore", methods=['GET', 'POST'])
 def storepage():
-    #msg=""
     id = request.args.get('id')
     store = getstore(id)
-    #booklist = libbooklist(id)
+    books=listbooks()
+    booklist = storebooklist(id)
 
     if (request.method == 'GET'):
         if store:
-            return render_template('bookstore.html', store=store)
+            return render_template('bookstore.html', store=store, books=books, list=booklist)
         else:
-            return render_template('error.html', msg="Library not found.")
+            return render_template('error.html', msg="Bookstore not found.")
+
+    elif (request.form.get('action') == "addcp"):
+        print("made it here")
+        book = request.form['book']
+        price = request.form['price']
+
+        conn = mysql.connection
+        cursor = conn.cursor()
+ 
+        #validate we have all the values
+        if (book==0 or float(price) < 0 or not price):
+            #return render_template('editbook.html', msg=msg)
+            return redirect(f'/bookstore?id={id}')
+
+        else:
+            try:
+                cursor.callproc('addstorecp', [book, id, price])
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                #msg="error: try again"
+                print(e)
+            else:
+                mysql.connection.commit()
+        cursor.close()
+
+        return redirect(f'/bookstore?id={id}')
+
+    else:
+        # read the posted values from the UI
+        name = request.form['name']
+        street = request.form['street']
+        city = request.form['city']
+        state = request.form['state']
+        zip = request.form['zip']
+
+        conn = mysql.connection
+        cursor = conn.cursor()
+ 
+        #validate we have all the values
+        if not (name and street and city and state and zip):
+            #msg= "please include all required fields"
+            return redirect(f'/bookstore?id={id}')
 
 
+        else:
+            try:
+                cursor.callproc('editstore', [id, name, street, city, state, zip])
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                #msg="error: try again"
+                print(e)
+                cursor.close()
+                return redirect(f'/bookstore?id={id}')
+            else:
+                #mode="edit"
+                mysql.connection.commit()
+                #print(conn.insert_id(), cursor.lastrowid)
+                cursor.close()
+                return redirect(f'/bookstore?id={id}')
+
+
+@app.route("/delstore", methods=['GET'])
+def delstore():
+    # read the posted values from the UI
+    id = request.args.get('id')
+
+    conn = mysql.connection
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('delstore', [id])
+    except (MySQLdb.Error, MySQLdb.Warning) as e:
+        print(e)
+    else:
+        mysql.connection.commit()
+    cursor.close()
+    #return render_template('booklist.html', msg=msg, list=listbooks())
+    return redirect(f'/locations')
 
 
 

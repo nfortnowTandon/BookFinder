@@ -349,9 +349,48 @@ begin
     select * from storeaddrs;
 end //
 
+drop procedure storebooklist;//
+create procedure storebooklist (in bid int)
+begin
+    select * from storebooks
+    where BookstoreId=bid;
+end //
 
+drop procedure addstorecp;//
+create procedure addstorecp (in bid int, bsid int, price float)
+begin
+    insert into StoreCopies (BookId, BookstoreId, Price)
+    values (bid, bsid, Price);
+end //
 
+drop procedure editstore;//
+create procedure editstore (in bid int, bname VARCHAR(255), street VARCHAR(255), icity VARCHAR(255), istate VARCHAR(255), zip VARCHAR(255))
+begin
+	
+    declare aid int;
 
+    select AddressId into aid
+    from Bookstores 
+    where id=bid;
+
+    update Addresses
+    set StreetAddr=street, City=icity, State=istate, ZipCode=zip
+    where id=aid;
+    
+    update Bookstores 
+    set Name=bname
+    where id=bid;
+
+END //
+
+drop procedure delstore;//
+create procedure delstore (in bid int)
+begin
+	    
+    delete from Bookstores
+    where id=bid;
+
+END //
 
 
 

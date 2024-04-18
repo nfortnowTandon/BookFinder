@@ -39,3 +39,11 @@ select Bookstores.id as id, Name, StreetAddr, City, State, ZipCode
     from Bookstores
     join Addresses on Bookstores.AddressId=Addresses.id
     order by Name ASC;
+
+drop view storebooks;
+create view storebooks as
+select StoreCopies.id as id, BookId, BookstoreId, Title, Author, YearPublished, Genre, ISBN, authId, Stars, Price
+    from booklist
+    join StoreCopies on booklist.id=BookId
+    join Authors on authId=Authors.id
+    order by Authors.LastName, Title ASC;

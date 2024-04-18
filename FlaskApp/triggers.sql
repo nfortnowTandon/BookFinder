@@ -6,13 +6,28 @@ BEGIN
 	where LibraryId=OLD.id;
 END;//
 
-
 drop trigger Libraries_AFTER_DELETE;//
 CREATE TRIGGER Libraries_AFTER_DELETE AFTER DELETE ON Libraries FOR EACH ROW
 BEGIN
 	delete from Addresses
 	where id=OLD.AddressId;
 END;//
+
+
+drop trigger Stores_BEFORE_DELETE;//
+CREATE TRIGGER Stores_BEFORE_DELETE BEFORE DELETE ON Bookstores FOR EACH ROW
+BEGIN
+	delete from StoreCopies
+	where BookstoreId=OLD.id;
+END;//
+
+drop trigger Stores_AFTER_DELETE;//
+CREATE TRIGGER Stores_AFTER_DELETE AFTER DELETE ON Bookstores FOR EACH ROW
+BEGIN
+	delete from Addresses
+	where id=OLD.AddressId;
+END;//
+
 
 drop trigger Books_BEFORE_DELETE;//
 CREATE TRIGGER Books_BEFORE_DELETE BEFORE DELETE ON Books FOR EACH ROW
