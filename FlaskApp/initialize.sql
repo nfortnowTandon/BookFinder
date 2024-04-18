@@ -98,9 +98,7 @@ CREATE TABLE IF NOT EXISTS `BookFinder`.`Bookstores` (
   INDEX `AddressId_idx` (`AddressId` ASC) VISIBLE,
   CONSTRAINT `StoreAddress`
     FOREIGN KEY (`AddressId`)
-    REFERENCES `BookFinder`.`Addresses` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    REFERENCES `BookFinder`.`Addresses` (`id`))
 ENGINE = InnoDB;
 
 
@@ -117,9 +115,7 @@ CREATE TABLE IF NOT EXISTS `BookFinder`.`Libraries` (
   INDEX `AddressId_idx` (`AddressId` ASC) VISIBLE,
   CONSTRAINT `LibAddress`
     FOREIGN KEY (`AddressId`)
-    REFERENCES `BookFinder`.`Addresses` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
+    REFERENCES `BookFinder`.`Addresses` (`id`))
 ENGINE = InnoDB;
 
 

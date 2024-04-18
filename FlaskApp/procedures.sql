@@ -199,24 +199,20 @@ begin
 END //
 
 
+
+
+
+
 drop procedure addlib;//
 create procedure addlib (in bname VARCHAR(255), street VARCHAR(255), icity VARCHAR(255), istate VARCHAR(255), zip VARCHAR(255))
 begin
 	
     declare aid int;
-    set aid = 0;
 
-    select id into aid
-    from Addresses 
-    where StreetAddr=street and City=icity and State=istate and ZipCode=zip;
+    insert into Addresses (StreetAddr, City, State, ZipCode)
+    values (street, icity, istate, zip);
 
-    if aid=0 then
-        insert into Addresses (StreetAddr, City, State, ZipCode)
-        values (street, icity, istate, zip);
-
-        SELECT LAST_INSERT_ID() into aid;
-    end if;
-    
+    SELECT LAST_INSERT_ID() into aid;
 
     INSERT INTO Libraries (BranchName, AddressId)
     values (bname, aid);
@@ -236,13 +232,85 @@ begin
     select * from libraryaddrs;
 end //
 
---drop procedure libbooklist;//
---create procedure libbooklist (in lid int)
---begin
---    select * from booklist
---    where authid=aid
---    order by Title asc;
---end //
+
+drop procedure libbooklist;//
+create procedure libbooklist (in lid int)
+begin
+    select * from librarybooks
+    where LibraryId=lid;
+end //
+
+
+drop procedure addlibcp;//
+create procedure addlibcp (in bid int, lid int)
+begin
+    insert into LibraryCopies (BookId, LibraryId, Available)
+    values (bid, lid, True);
+end //
+
+
+drop procedure getlibcp;//
+create procedure getlibcp (in cid int)
+begin
+    select * from LibraryCopies
+    where id=cid;
+end //
+
+
+drop procedure toggleavail;//
+create procedure toggleavail (in cid int)
+begin
+	
+    declare avail tinyint;
+    select Available into avail
+    from LibraryCopies
+    where id=cid;
+    
+    if avail then
+        UPDATE LibraryCopies
+        SET Available=False
+        WHERE id=cid;
+    else
+        UPDATE LibraryCopies
+        SET Available=True
+        WHERE id=cid;
+    end if;
+
+END //
+
+
+drop procedure editlib;//
+create procedure editlib (in lid int, bname VARCHAR(255), street VARCHAR(255), icity VARCHAR(255), istate VARCHAR(255), zip VARCHAR(255))
+begin
+	
+    declare aid int;
+
+    select AddressId into aid
+    from Libraries 
+    where id=lid;
+
+    update Addresses
+    set StreetAddr=street, City=icity, State=istate, ZipCode=zip
+    where id=aid;
+    
+    update Libraries 
+    set BranchName=bname
+    where id=lid;
+
+END //
+
+
+drop procedure dellib;//
+create procedure dellib (in lid int)
+begin
+	    
+    delete from Libraries 
+    where id=lid;
+
+END //
+
+
+
 
 drop procedure addstore;//
 create procedure addstore (in sname VARCHAR(255), street VARCHAR(255), icity VARCHAR(255), istate VARCHAR(255), zip VARCHAR(255))
@@ -283,6 +351,10 @@ end //
 
 
 
+
+
+
+
 drop procedure search;//
 create procedure search ()
 begin
@@ -293,7 +365,14 @@ end //
 --	call addbook (9781250313195, 'Gideon the Ninth', 'Tamsyn', 'Muir', 2019, 2)
 --	call addbook ('978-1-982185-82-4', "I'm Glad my Mom Died", 'Jenette', 'McCurdy', 2022, 4)//
 
+    --declare aid int;
+    --set aid = 0;
 
+    --select id into aid
+    --from Addresses 
+    --where StreetAddr=street and City=icity and State=istate and ZipCode=zip;
+
+    --if aid=0 then//
 
 
 --DELIMITER ;

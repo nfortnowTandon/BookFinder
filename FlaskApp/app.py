@@ -58,6 +58,19 @@ def init():
         mysql.connection.commit()
         cursor.close()
 
+    with open('triggers.sql', 'r') as f:
+        cursor = mysql.connection.cursor()
+        viewfile = f.read()
+        #procs = procfile.split('//|;')
+        triggers = viewfile.split('//')
+        for t in triggers:
+            try:
+                cursor.execute(t)
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                print(e)
+        mysql.connection.commit()
+        cursor.close()
+
 
 #HELPER FUNCTIONS
 def listbooks():
@@ -159,6 +172,35 @@ def getstores():
     #mysql.connection.commit()
     cursor.close()
     return list;
+
+def libbooklist(lid):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('libbooklist', [lid])
+    list=cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return list;
+
+def getcopy(id, locationtype):
+    if locationtype=="l":
+        cursor = mysql.connection.cursor()
+        cursor.callproc('getlibcp', [id])
+        data = cursor.fetchone()
+        print(data)
+        #mysql.connection.commit()
+        cursor.close()
+        return data;
+    elif locationtype=="b":
+        cursor = mysql.connection.cursor()
+        cursor.callproc('getstorecp', [id])
+        data = cursor.fetchone()
+        print(data)
+        #mysql.connection.commit()
+        cursor.close()
+        return data;
+    else:
+        return "error";
+    
 
 #END HELPER FUNCTIONS
 
@@ -544,42 +586,108 @@ def libpage():
     #msg=""
     id = request.args.get('id')
     library = getlib(id)
-    #booklist = libbooklist(id)
+    books=listbooks()
+    booklist = libbooklist(id)
 
     if (request.method == 'GET'):
         if library:
-            return render_template('library.html', library=library)
+            return render_template('library.html', library=library, books=books, list=booklist)
         else:
             return render_template('error.html', msg="Library not found.")
 
-    else if request.form.get('action') == "addcp":
+    elif (request.form.get('action') == "addcp"):
+        print("made it here")
+        book = request.form['book']
 
-    #else:
-    #    # read the posted values from the UI
-    #    fname = request.form['fname']
-    #    lname = request.form['lname']
-
-    #    conn = mysql.connection
-    #    cursor = conn.cursor()
+        conn = mysql.connection
+        cursor = conn.cursor()
  
-    #    #validate we have all the values
-    #    if not (fname and lname):
-    #        #return render_template('editbook.html', msg=msg)
-    #        return redirect(f'/author?id={id}')
+        #validate we have all the values
+        if (book==0):
+            #return render_template('editbook.html', msg=msg)
+            return redirect(f'/library?id={id}')
 
-    #    else:
-    #        try:
-    #            cursor.callproc('editauthor', [id, fname, lname])
-    #        except (MySQLdb.Error, MySQLdb.Warning) as e:
-    #            #msg="error: try again"
-    #            print(e)
-    #        else:
-    #            #mode="edit"
-    #            mysql.connection.commit()
-    #    cursor.close()
-    #    return redirect(f'/author?id={id}')
-    #        #return redirect('/booklist?mode=edit')
-    #return render_template('library.html')
+        else:
+            try:
+                cursor.callproc('addlibcp', [book, id])
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                #msg="error: try again"
+                print(e)
+            else:
+                mysql.connection.commit()
+        cursor.close()
+
+        return redirect(f'/library?id={id}')
+
+    else:
+        # read the posted values from the UI
+        bname = request.form['branchname']
+        street = request.form['street']
+        city = request.form['city']
+        state = request.form['state']
+        zip = request.form['zip']
+
+        conn = mysql.connection
+        cursor = conn.cursor()
+ 
+        #validate we have all the values
+        if not (bname and street and city and state and zip):
+            #msg= "please include all required fields"
+            return redirect(f'/library?id={id}')
+
+
+        else:
+            try:
+                cursor.callproc('editlib', [id, bname, street, city, state, zip])
+            except (MySQLdb.Error, MySQLdb.Warning) as e:
+                #msg="error: try again"
+                print(e)
+                cursor.close()
+                return redirect(f'/library?id={id}')
+            else:
+                #mode="edit"
+                mysql.connection.commit()
+                #print(conn.insert_id(), cursor.lastrowid)
+                cursor.close()
+                return redirect(f'/library?id={id}')
+
+
+@app.route("/dellib", methods=['GET'])
+def dellib():
+    # read the posted values from the UI
+    id = request.args.get('id')
+
+    conn = mysql.connection
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('dellib', [id])
+    except (MySQLdb.Error, MySQLdb.Warning) as e:
+        print(e)
+    else:
+        mysql.connection.commit()
+    cursor.close()
+    #return render_template('booklist.html', msg=msg, list=listbooks())
+    return redirect(f'/locations')
+
+# toggle availability of library copy
+@app.route("/toggle", methods=['GET'])
+def toggle():
+    # read the posted values from the UI
+    id = request.args.get('id')
+    copy=getcopy(id, "l")
+    lid=copy[2]
+
+    conn = mysql.connection
+    cursor = conn.cursor()
+    try:
+        cursor.callproc('toggleavail', [id])
+    except (MySQLdb.Error, MySQLdb.Warning) as e:
+        print(e)
+    else:
+        mysql.connection.commit()
+    cursor.close()
+    #return render_template('booklist.html', msg=msg, list=listbooks())
+    return redirect(f'/library?id={lid}')
 
 
 @app.route("/addstore", methods=['GET', 'POST'])

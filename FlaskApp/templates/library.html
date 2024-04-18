@@ -1,7 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">
+    <!--<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yegor256/tacit@gh-pages/tacit-css-1.7.1.min.css" />
+    <style>
+        .rating {
+            --dir: right;
+            --fill: gold;
+            --fillbg: rgba(100, 100, 100, 0.15);
+            --heart: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 21.328l-1.453-1.313q-2.484-2.25-3.609-3.328t-2.508-2.672-1.898-2.883-0.516-2.648q0-2.297 1.57-3.891t3.914-1.594q2.719 0 4.5 2.109 1.781-2.109 4.5-2.109 2.344 0 3.914 1.594t1.57 3.891q0 1.828-1.219 3.797t-2.648 3.422-4.664 4.359z"/></svg>');
+            --star: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 17.25l-6.188 3.75 1.641-7.031-5.438-4.734 7.172-0.609 2.813-6.609 2.813 6.609 7.172 0.609-5.438 4.734 1.641 7.031z"/></svg>');
+            --stars: 5;
+            --starsize: 3rem;
+            --symbol: var(--star);
+            --value: 1;
+            --w: calc(var(--stars) * var(--starsize));
+            --x: calc(100% * (var(--value) / var(--stars)));
+            block-size: var(--starsize);
+            inline-size: var(--w);
+            position: relative;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+        }
+
+        [dir="rtl"] .rating {
+            --dir: left;
+        }
+
+        .rating::-moz-range-track {
+            background: linear-gradient(to var(--dir), var(--fill) 0 var(--x), var(--fillbg) 0 var(--x));
+            block-size: 100%;
+            mask: repeat left center/var(--starsize) var(--symbol);
+        }
+
+        .rating::-webkit-slider-runnable-track {
+            background: linear-gradient(to var(--dir), var(--fill) 0 var(--x), var(--fillbg) 0 var(--x));
+            block-size: 100%;
+            mask: repeat left center/var(--starsize) var(--symbol);
+            -webkit-mask: repeat left center/var(--starsize) var(--symbol);
+        }
+
+        .rating::-moz-range-thumb {
+            height: var(--starsize);
+            opacity: 0;
+            width: var(--starsize);
+        }
+
+        .rating::-webkit-slider-thumb {
+            height: var(--starsize);
+            opacity: 0;
+            width: var(--starsize);
+            -webkit-appearance: none;
+        }
+
+        .rating, .rating-label {
+            display: block;
+            font-family: ui-sans-serif, system-ui, sans-serif;
+        }
+
+        .rating-label {
+            margin-block-end: 1rem;
+        }
+    </style>
 </head>
 <body>
     <h1>{{ library[1] }} Library</h1>
@@ -9,48 +69,88 @@
 
     <p>Address: {{ library[2] }}, {{ library[3] }}, {{ library[4] }}, {{ library[5] }}</p>
 
-    <p>Add a copy of a book to this library:</p>
+    <h3>Books at this Library:</h3>
+    <table>
+        <tr>
+            <th>Copy ID</th>
+            <th>Available?</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Year Published</th>
+            <th>Genre</th>
+            <th>ISBN</th>
+        </tr>
+        {% for row in list %}
+        <tr>
+            <td>{{ row[0] }}</td>
+            <td>
+                {% if row[10] == 1 %} 
+                available <br/>
+                <a href="/toggle?id={{ row[0] }}">mark checked out</a>
+                {% else %}
+                checked out <br />
+                <a href="/toggle?id={{ row[0] }}">mark available</a>
+                {% endif %}
+
+            </td>
+            <td>{{ row[3] }}</td>
+            <td>
+                <a href="/author?id={{ row[8] }}">{{ row[4] }}</a>
+            </td>
+            <td>{{ row[5] }}</td>
+            <td>{{ row[6] }}</td>
+            <td>{{ row[7] }}</td>
+            <td>
+                <label class="rating-label">
+                    <input class="rating"
+                           max="5"
+                           readonly
+                           step=".1"
+                           style="--stars: 5; --value: {{ row[9] }}"
+                           type="range"
+                           value={{ row[9] }}>
+                </label>
+                <a href="/review?book={{ row[1] }}">see/add reviews</a>
+            </td>
+            <td>
+                <a href="/editbook?book={{ row[1] }}">edit book details</a>
+            </td>
+            <td>
+                <a href="/delcopy?id={{ row[0] }}">remove copy from library</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <h3>Add a copy of a book to this library:</h3>
     <form method="POST">
         <label for="book">Book:</label>
-        <select id="genre" name="genre">
+        <select id="book" name="book">
             <option value=0 hidden>Please Select</option>
             {% for row in books %}
-            <option value={{ row[0] }} {{ row[2] }}>{{ row[1] }}</option>
+            <option value={{ row[0] }}>{{ row[1] }} ({{ row[2] }}, {{ row[3] }})</option>
             {% endfor %}
             <br />
         </select>
-        <label for="branchname">Branch Name:</label>
-        <input type="text" id="branchname" name="branchname" value={{ library[1] }}><br>
-
-        <label for="street">Street Address:</label>
-        <input type="text" id="street" name="street" value={{ library[2] }}><br>
-
-        <label for="city">City:</label>
-        <input type="text" id="city" name="city" value={{ library[3] }}><br>
-
-        <label for="state">State:</label>
-        <input type="text" id="state" name="state" value={{ library[4] }}><br>
-
-        <label for="zip">ZIP Code:</label>
-        <input type="number" id="zip" name="zip" value={{ library[5] }}><br>
+        <p>not seeing the book you want? <a href="/addbook"> add a book to the database</a> </p>
 
         <div><button type="submit" name="action" value="addcp">Submit</button></div><br>
 
     </form>
 
-    <p>Edit library details:</p>
+    <h3>Edit library details:</h3>
     <form method="POST">
         <label for="branchname">Branch Name:</label>
-        <input type="text" id="branchname" name="branchname" value={{ library[1] }}><br>
+        <input type="text" id="branchname" name="branchname" value="{{ library[1] }}"><br>
 
         <label for="street">Street Address:</label>
-        <input type="text" id="street" name="street" value={{ library[2] }}><br>
+        <input type="text" id="street" name="street" value="{{ library[2] }}"><br>
 
         <label for="city">City:</label>
-        <input type="text" id="city" name="city" value={{ library[3] }}><br>
+        <input type="text" id="city" name="city" value="{{ library[3] }}"><br>
 
         <label for="state">State:</label>
-        <input type="text" id="state" name="state" value={{ library[4] }}><br>
+        <input type="text" id="state" name="state" value="{{ library[4] }}"><br>
 
         <label for="zip">ZIP Code:</label>
         <input type="number" id="zip" name="zip" value={{ library[5] }}><br>
@@ -59,7 +159,7 @@
 
     </form>
 
-    <p>Note: deleting this location will also delete all book copies at this location. Proceed with caution!!</p>
+    <p style="red">Note: deleting this location will also delete all book copies at this location. Proceed with caution!!!</p>
     <a href="/dellib?id={{ library[0] }}">delete this library</a>
 
 </body>
