@@ -256,6 +256,13 @@ begin
     where id=cid;
 end //
 
+drop procedure dellibcp;//
+create procedure dellibcp (in cid int)
+begin
+    delete from LibraryCopies
+    where id=cid;
+end //
+
 
 drop procedure toggleavail;//
 create procedure toggleavail (in cid int)
@@ -356,11 +363,26 @@ begin
     where BookstoreId=bid;
 end //
 
+drop procedure getstorecp;//
+create procedure getstorecp (in cid int)
+begin
+    select * from StoreCopies
+    where id=cid;
+end //
+
+
 drop procedure addstorecp;//
 create procedure addstorecp (in bid int, bsid int, price float)
 begin
     insert into StoreCopies (BookId, BookstoreId, Price)
     values (bid, bsid, Price);
+end //
+
+drop procedure delstorecp;//
+create procedure delstorecp (in cid int)
+begin
+    delete from StoreCopies
+    where id=cid;
 end //
 
 drop procedure editstore;//
@@ -391,7 +413,6 @@ begin
     where id=bid;
 
 END //
-
 
 
 drop procedure search;//

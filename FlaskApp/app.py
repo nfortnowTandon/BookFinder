@@ -198,7 +198,7 @@ def getcopy(id, locationtype):
         #mysql.connection.commit()
         cursor.close()
         return data;
-    elif locationtype=="b":
+    elif locationtype=="bs":
         cursor = mysql.connection.cursor()
         cursor.callproc('getstorecp', [id])
         data = cursor.fetchone()
@@ -831,6 +831,43 @@ def delstore():
     cursor.close()
     #return render_template('booklist.html', msg=msg, list=listbooks())
     return redirect(f'/locations')
+
+
+@app.route("/delcopy", methods=['GET'])
+def delcp():
+    # read the posted values from the UI
+    id = request.args.get('id')
+    mode = request.args.get('mode')
+    copy=getcopy(id, mode)
+
+
+    conn = mysql.connection
+    cursor = conn.cursor()
+
+    if mode == 'l':
+        lid=copy[2]
+
+        try:
+            cursor.callproc('dellibcp', [id])
+        except (MySQLdb.Error, MySQLdb.Warning) as e:
+            print(e)
+        else:
+            mysql.connection.commit()
+        cursor.close()
+        return redirect(f'/library?id={lid}')
+    else:
+        sid=copy[2]
+
+        try:
+            cursor.callproc('delstorecp', [id])
+        except (MySQLdb.Error, MySQLdb.Warning) as e:
+            print(e)
+        else:
+            mysql.connection.commit()
+        cursor.close()
+        return redirect(f'/bookstore?id={sid}')
+    #return render_template('booklist.html', msg=msg, list=listbooks())
+    
 
 
 

@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS `BookFinder`.`StoreCopies` (
   `id` INT NOT NULL AUTO_INCREMENT,
   `BookId` INT NOT NULL,
   `BookstoreId` INT NOT NULL,
-  `Price` DECIMAL(2) NOT NULL,
+  `Price` DECIMAL(10,2) NOT NULL,
   PRIMARY KEY (`id`, `BookId`),
   INDEX `BookId_idx` (`BookId` ASC) VISIBLE,
   INDEX `BookstoreId_idx` (`BookstoreId` ASC) VISIBLE,

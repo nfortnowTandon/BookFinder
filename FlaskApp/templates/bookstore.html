@@ -108,7 +108,7 @@
                 <a href="/editbook?book={{ row[1] }}">edit book details</a>
             </td>
             <td>
-                <a href="/delcopy?id={{ row[0] }}">remove copy from store</a>
+                <a href="/delcopy?mode=bs&id={{ row[0] }}">remove copy from store</a>
             </td>
         </tr>
         {% endfor %}
@@ -127,7 +127,7 @@
         <p>not seeing the book you want? <a href="/addbook">add a book to the database</a> </p>
 
         <label for="price">Price:</label>
-        <input type="number" id="price" name="price"><br>
+        <input type="number" id="price" name="price" step="0.01" max="1000" min="0"><br>
 
         <div><button type="submit" name="action" value="addcp">Submit</button></div><br>
 
