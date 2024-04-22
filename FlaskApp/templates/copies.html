@@ -1,8 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!--<link rel="stylesheet" href="https://cdn.simplecss.org/simple.min.css">-->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/yegor256/tacit@gh-pages/tacit-css-1.7.1.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/base-min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/grids-responsive-min.css">
     <style>
         .rating {
             --dir: right;
@@ -64,52 +67,50 @@
     </style>
 </head>
 <body>
-    <h1>BookList</h1>
-    <p>{{ msg }}</p>
-    <a href="/addbook">add a book</a><br/>
-    <a href="/locations">find a library or bookstore</a>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Year Published</th>
-            <th>Genre</th>
-            <th>ISBN</th>
-        </tr>
-        {% for row in list %}
-        <tr>
-            <td>{{ row[0] }}</td>
-            <td>{{ row[1] }}</td>
-            <td>
-                <a href="/author?id={{ row[6] }}">{{ row[2] }}</a>
-            </td>
-            <td>{{ row[3] }}</td>
-            <td>{{ row[4] }}</td>
-            <td>{{ row[5] }}</td>
-            <td>
-                <label class="rating-label">
-                    <input class="rating"
-                           max="5"
-                           readonly
-                           step=".1"
-                           style="--stars: 5; --value: {{ row[7] }}"
-                           type="range"
-                           value={{ row[7] }}>
-                </label>
-                <a href="/review?book={{ row[0] }}">see/add reviews</a>
-            </td>
-            <td>
-                <a href="/copies?id={{ row[0] }}">find copies</a>
-            </td>
-            <td>
-                <a href="/editbook?book={{ row[0] }}">edit book details</a>
-            </td>
-            <td>
-                <a href="/delbook?book={{ row[0] }}">delete book</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
+    <h1>Copies of {{ book[1] }} by {{ book[3] }} {{ book[4] }}</h1>
+    <a href="/locations">see all locations</a><br />
+    <a href="/booklist">search for another book</a>
+
+    <div class="pure-g">
+        <div class="pure-u-1-2">
+            <h3>Library copies:</h3>
+            <table>
+                <tr>
+                    <th>Library</th>
+                    <th>Address</th>
+                    <th>Copies</th>
+                </tr>
+                {% for cp in lcopies %}
+                <tr>
+                    <td>
+                        <a href="/library?id={{ cp[0] }}">{{ cp[1] }} Library</a><br />
+                    </td>
+                    <td>{{ cp[2] }}</td>
+                    <td><a href="/library?id={{ cp[0] }}">{{ cp[4] }}/{{ cp[3] }} copies available</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <div class="pure-u-1-2">
+            <h3>Bookstore Copies:</h3>
+            <table>
+                <tr>
+                    <th>Store</th>
+                    <th>Address</th>
+                    <th>Copies</th>
+                </tr>
+                {% for cp in scopies %}
+                <tr>
+                    <td>
+                        <a href="/bookstore?id={{ cp[0] }}">{{ cp[1] }} Library</a><br />
+                    </td>
+                    <td>{{ cp[2] }}</td>
+                    <td><a href="/bookstore?id={{ cp[0] }}">{{ cp[3] }} copies available, averaging ${{ cp[4] }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
 </body>
 </html>

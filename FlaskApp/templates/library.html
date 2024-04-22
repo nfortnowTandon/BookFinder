@@ -84,8 +84,8 @@
         <tr>
             <td>{{ row[0] }}</td>
             <td>
-                {% if row[10] == 1 %} 
-                available <br/>
+                {% if row[10] == 1 %}
+                available <br />
                 <a href="/toggle?id={{ row[0] }}">mark checked out</a>
                 {% else %}
                 checked out <br />
@@ -111,6 +111,9 @@
                            value={{ row[9] }}>
                 </label>
                 <a href="/review?book={{ row[1] }}">see/add reviews</a>
+            </td>
+            <td>
+                <a href="/copies?id={{ row[1] }}">see all copies</a>
             </td>
             <td>
                 <a href="/editbook?book={{ row[1] }}">edit book details</a>

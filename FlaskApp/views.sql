@@ -30,7 +30,16 @@ select LibraryCopies.id as id, BookId, LibraryId, Title, Author, YearPublished, 
     join LibraryCopies on booklist.id=BookId
     join Authors on authId=Authors.id
     order by Authors.LastName, Title ASC;
-    
+
+drop view librarycopies;
+create view librarycopies as
+select LibraryId, BranchName, concat(StreetAddr,', ',City,', ',State,', ',ZipCode) as Address, count(librarybooks.id) as cpnum, sum(Available) as avail
+    from librarybooks
+    join libraryaddrs on librarybooks.LibraryId=libraryaddrs.id
+    order by BranchName, BookId asc;
+
+
+
 
 
 drop view storeaddrs;
@@ -47,3 +56,10 @@ select StoreCopies.id as id, BookId, BookstoreId, Title, Author, YearPublished, 
     join StoreCopies on booklist.id=BookId
     join Authors on authId=Authors.id
     order by Authors.LastName, Title ASC;
+
+drop view storecopies;
+create view storecopies as
+select storebooks.id as cpid, BookstoreId, Name as storename, concat(StreetAddr,', ',City,', ',State,', ',ZipCode) as Address, BookId, Title, Author, YearPublished, Genre, ISBN, authId, Stars, Price
+    from storebooks
+    join storeaddrs on storebooks.BookstoreId=storeaddrs.id
+    order by storename, BookId asc;

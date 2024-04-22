@@ -208,7 +208,23 @@ def getcopy(id, locationtype):
         return data;
     else:
         return "error";
-    
+
+
+def getlibcopies(bid):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getbklibcps', [bid])
+    list=cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return list;
+
+def getstorecopies(bid):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('getbkstorecps', [bid])
+    list=cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return list;
 
 #END HELPER FUNCTIONS
 
@@ -868,6 +884,37 @@ def delcp():
         return redirect(f'/bookstore?id={sid}')
     #return render_template('booklist.html', msg=msg, list=listbooks())
     
+
+@app.route("/copies", methods=['GET', 'POST'])
+def copies():
+    bookid = request.args.get('id')
+    book = getbook(bookid)
+    #llist=[]
+
+    lcopies = getlibcopies(bookid)
+    print(lcopies)
+
+    #lid = lcopies[0][0]
+    ##print('library id: ',lid)
+    #lib=getlib(lid)
+    ##print('library: ',lib)
+    #llist.append([lib])
+    ##llist[0][0]=lib
+
+    #l=0
+    #for cp in lcopies:
+    #    if cp[0]!=lid:
+    #        l+=1
+    #        lid=cp[0]
+    #        lib=getlib(lid)
+    #        #llist[l][0]=lib
+    #        llist.append([lib])
+    #    #llist[l][j] = lib
+    #    llist[l].append((cp[1], cp[2]))
+    #print("llist: ",llist)
+    scopies =  getstorecopies(bookid)
+    return render_template('copies.html', book=book, lcopies=lcopies, scopies=scopies)
+
 
 
 

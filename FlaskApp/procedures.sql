@@ -422,6 +422,35 @@ begin
 end //
 
 
+
+
+
+
+drop procedure getbklibcps;//
+create procedure getbklibcps(in bid int)
+begin
+    select LibraryId, BranchName, concat(StreetAddr,', ',City,', ',State,', ',ZipCode) as Address, count(distinct librarybooks.id) as cpnum, sum(Available) as avail
+    from librarybooks
+    left outer join libraryaddrs on librarybooks.LibraryId=libraryaddrs.id
+    where Bookid = bid
+    group by LibraryId
+    order by BranchName asc;
+
+end //
+
+
+drop procedure getbkstorecps;//
+create procedure getbkstorecps(in bid int)
+begin
+    select BookstoreId, Name, concat(StreetAddr,', ',City,', ',State,', ',ZipCode) as Address, count(distinct storebooks.id) as cpnum, round(avg(Price), 2) as aprice
+    from storebooks
+    left outer join storeaddrs on storebooks.BookStoreId=storeaddrs.id
+    where Bookid = bid
+    group by BookstoreId
+    order by Name asc;
+end //
+
+
 --	call addbook (9781250313195, 'Gideon the Ninth', 'Tamsyn', 'Muir', 2019, 2)
 --	call addbook ('978-1-982185-82-4', "I'm Glad my Mom Died", 'Jenette', 'McCurdy', 2022, 4)//
 
