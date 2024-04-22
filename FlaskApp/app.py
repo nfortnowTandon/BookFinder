@@ -226,6 +226,15 @@ def getstorecopies(bid):
     cursor.close()
     return list;
 
+
+def getsearch(title,author,genre,zip):
+    cursor = mysql.connection.cursor()
+    cursor.callproc('search', [title,author,genre])
+    list=cursor.fetchall()
+    #mysql.connection.commit()
+    cursor.close()
+    return list;
+
 #END HELPER FUNCTIONS
 
 
@@ -237,8 +246,11 @@ def getstorecopies(bid):
 def main():
     return render_template('index.html')
 
-@app.route("/booklist")
+@app.route("/booklist", methods=['GET'])
 def list():
+
+    genres = getgenres(0)
+
     mode = request.args.get('mode')
     if mode == 'del':
         msg = "Book successfully deleted!"
@@ -250,11 +262,45 @@ def list():
         msg = "Failed to edit book, please try again or contact administrators"
     else:
         msg = "Welcome to our book database :)"
-    return render_template('booklist.html', msg=msg, list=listbooks())
+    return render_template('booklist.html', msg=msg, list=listbooks(), genres=genres)
 
-@app.route("/search")
+@app.route("/booklist", methods=['post'])
 def search():
-    return render_template('search.html')
+    msg=""
+    title = request.form['title']
+    author = request.form['author']
+    genre = request.form['genre']
+    zip = request.form['zip']
+
+    genres = getgenres(0)
+
+    if title or author or genre or zip:
+        msg = "search results for:\n"
+        if title:
+            msg += "title: "+title+'\n'
+        else:
+            title='0'
+        if author:
+            msg += "author: "+author+'\n'
+        else:
+            author='0'
+        if genre!='0':
+            msg += "genre: "+genres[int(genre)-1][1]+'\n'
+        else:
+            genre=0
+        if zip:
+            msg += "ZIP code: "+zip+'\n'
+        else:
+            zip=0
+        list=getsearch(title,author,genre,zip)
+        print(title,author,genre,zip)
+        print("lol search results")
+        print(list)
+
+    else:
+        list=listbooks()
+
+    return render_template('booklist.html', msg=msg, list=list, genres=genres)
 
 
 

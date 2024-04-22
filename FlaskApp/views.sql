@@ -7,7 +7,7 @@ select BookId, AVG(stars) as stars
 drop view booklist;
 CREATE VIEW booklist as
 select Books.id as id, Title, concat(Authors.FirstName,' ',Authors.LastName) as Author, YearPublished, Genres.Name as Genre, ISBN, Authors.id as authId, 
-    (case when avgstars.stars is null then 0 else avgstars.stars end) as Stars
+    (case when avgstars.stars is null then 0 else avgstars.stars end) as Stars, Genres.id as GenreId
     from Books
     join Authors on Authorid=Authors.id
     join Genres on GenreId=Genres.id

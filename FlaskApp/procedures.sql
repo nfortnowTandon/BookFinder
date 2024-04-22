@@ -416,9 +416,13 @@ END //
 
 
 drop procedure search;//
-create procedure search ()
+create procedure search (in tl VARCHAR(255), auth VARCHAR(255), gr int)
 begin
-    select * from booklist;
+    select id, Title, Author, YearPublished, Genre, ISBN, authId, Stars, GenreId
+    from booklist
+    where (LOCATE(tl, Title)>0 or tl='0')
+    and (LOCATE(auth, Author)>0 or auth='0')
+    and (GenreId=gr or gr=0);
 end //
 
 
