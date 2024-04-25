@@ -228,8 +228,10 @@ def getstorecopies(bid):
 
 
 def getsearch(title,author,genre,zip):
+    #print("got here")
     cursor = mysql.connection.cursor()
-    cursor.callproc('search', [title,author,genre])
+    cursor.callproc('search', [title,author,genre,zip])
+    #print("sql proc done")
     list=cursor.fetchall()
     #mysql.connection.commit()
     cursor.close()
@@ -272,9 +274,11 @@ def search():
     genre = request.form['genre']
     zip = request.form['zip']
 
+    print("t:",title,"a",author,"g",genre,"z",zip)
+
     genres = getgenres(0)
 
-    if title or author or genre or zip:
+    if title or author or genre!='0' or zip:
         msg = "search results for:\n"
         if title:
             msg += "title: "+title+'\n'
@@ -298,6 +302,7 @@ def search():
         print(list)
 
     else:
+        msg=""
         list=listbooks()
 
     return render_template('booklist.html', msg=msg, list=list, genres=genres)

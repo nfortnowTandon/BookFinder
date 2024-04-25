@@ -416,13 +416,31 @@ END //
 
 
 drop procedure search;//
-create procedure search (in tl VARCHAR(255), auth VARCHAR(255), gr int)
+create procedure search (in tl VARCHAR(255), auth VARCHAR(255), gr int, zip int)
 begin
-    select id, Title, Author, YearPublished, Genre, ISBN, authId, Stars, GenreId
+    select booklist.id, Title, Author, YearPublished, Genre, ISBN, authId, Stars, GenreId
+    from booklist
+    join librarycopies on booklist.id=librarycopies.BookId
+    where (LOCATE(tl, Title)>0 or tl='0')
+    and (LOCATE(auth, Author)>0 or auth='0')
+    and (GenreId=gr or gr=0)
+    and (librarycopies.ZipCode=zip or zip=0)
+    union
+    select booklist.id, Title, Author, YearPublished, Genre, ISBN, authId, Stars, GenreId
+    from booklist
+    join storecopies on booklist.id=storecopies.BookId
+    where (LOCATE(tl, Title)>0 or tl='0')
+    and (LOCATE(auth, Author)>0 or auth='0')
+    and (GenreId=gr or gr=0)
+    and (storecopies.ZipCode=zip or zip=0)
+    union
+    select booklist.id, Title, Author, YearPublished, Genre, ISBN, authId, Stars, GenreId
     from booklist
     where (LOCATE(tl, Title)>0 or tl='0')
     and (LOCATE(auth, Author)>0 or auth='0')
-    and (GenreId=gr or gr=0);
+    and (GenreId=gr or gr=0)
+    and (zip=0);
+end //
 end //
 
 
